@@ -109,25 +109,22 @@ def on_file_changed(*, file_path: Path, **kwargs: Any) -> bool | None:
     # Django Templates
     for template_dir in django_template_directories():
         if template_dir in file_parents:
-            trigger_reload_soon()
-            return skip_server_restart(file_path)
+            return reload_or_server_restart(file_path)
 
     # Jinja Templates
     for template_dir in jinja_template_directories():
         if template_dir in file_parents:
-            trigger_reload_soon()
-            return skip_server_restart(file_path)
+            return reload_or_server_restart(file_path)
 
     # Static assets
     for storage in static_finder_storages():
         if Path(storage.location) in file_parents:
-            trigger_reload_soon()
-            return skip_server_restart(file_path)
+            return reload_or_server_restart(file_path)
 
     return None
 
 
-def skip_server_restart(file_path: Path) -> bool | None:
+def reload_or_server_restart(file_path: Path) -> bool | None:
     """
     Return None if the server should be restarted and True otherwise.
 
@@ -138,6 +135,7 @@ def skip_server_restart(file_path: Path) -> bool | None:
     """
     if file_path.suffix == ".py":
         return None
+    trigger_reload_soon()
     return True
 
 
